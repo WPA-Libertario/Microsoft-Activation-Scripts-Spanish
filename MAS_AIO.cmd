@@ -5,14 +5,14 @@
 
 
 
-::  For command line switches, check mass grave[.]dev/command_line_switches
-::  If you want to better understand script, read from MAS separate files version. 
+::  Para los modificadores de la línea de comandos, consulte mass grave[.]dev/command_line_switches
+::  Si desea comprender mejor el script, lea la versión en archivos separados de MAS.
 
 
 
 ::============================================================================
 ::
-::   Homepage: mass grave[.]dev
+::   Pagina Web: mass grave[.]dev
 ::      Email: mas.help@outlook.com
 ::
 ::============================================================================
@@ -21,7 +21,7 @@
 
 ::========================================================================================================================================
 
-::  Set environment variables, it helps if they are misconfigured in the system
+::  Establecer variables de entorno, ayuda si están mal configuradas en el sistema
 
 setlocal EnableExtensions
 setlocal DisableDelayedExpansion
@@ -44,8 +44,8 @@ if /i "%%#"=="r1" set r1=1
 if /i "%%#"=="r2" set r2=1
 )
 
-:: Re-launch the script with x64 process if it was initiated by x86 process on x64 bit Windows
-:: or with ARM64 process if it was initiated by x86/ARM32 process on ARM64 Windows
+:: Vuelva a iniciar el script con el proceso x64 si fue iniciado por el proceso x86 en Windows de 64 bits
+:: o con el proceso ARM64 si fue iniciado por el proceso x86/ARM32 en Windows ARM64
 
 if exist %SystemRoot%\Sysnative\cmd.exe if not defined r1 (
 setlocal EnableDelayedExpansion
@@ -53,7 +53,7 @@ start %SystemRoot%\Sysnative\cmd.exe /c ""!_cmdf!" %* r1"
 exit /b
 )
 
-:: Re-launch the script with ARM32 process if it was initiated by x64 process on ARM64 Windows
+:: Vuelva a iniciar el script con el proceso ARM32 si fue iniciado por el proceso x64 en Windows ARM64
 
 if exist %SystemRoot%\SysArm32\cmd.exe if %PROCESSOR_ARCHITECTURE%==AMD64 if not defined r2 (
 setlocal EnableDelayedExpansion
@@ -66,12 +66,12 @@ exit /b
 set "blank="
 set "mas=ht%blank%tps%blank%://mass%blank%grave.dev/"
 
-::  Check if Null service is working, it's important for the batch script
+::  Comprueba si el servicio Null está funcionando, es importante para el script por lotes
 
 sc query Null | find /i "RUNNING"
 if %errorlevel% NEQ 0 (
 echo:
-echo Null service is not running, script may crash...
+echo El servicio nulo no se está ejecutando, el script puede bloquearse...
 echo:
 echo:
 echo Help - %mas%troubleshoot
@@ -81,15 +81,15 @@ ping 127.0.0.1 -n 20
 )
 cls
 
-::  Check LF line ending
+::  Compruebe el final de la línea LF
 
 pushd "%~dp0"
 >nul findstr /v "$" "%~nx0" && (
 echo:
-echo Error - Script either has LF line ending issue or an empty line at the end of the script is missing.
+echo Error: el script tiene un problema al final de la línea LF o falta una línea vacía al final del script.
 echo:
 echo:
-echo Help - %mas%troubleshoot
+echo Ayuda en - %mas%troubleshoot
 echo:
 echo:
 ping 127.0.0.1 -n 20 >nul
@@ -102,7 +102,7 @@ popd
 
 cls
 color 07
-title  Microsoft_Activation_Scripts %masver%
+title  Scripts_de_activación_de_Microsoft %masver%
 
 set _args=
 set _elev=
@@ -129,14 +129,14 @@ call :dk_setvar
 
 if %winbuild% LSS 7600 (
 %nceline%
-echo Unsupported OS version detected [%winbuild%].
-echo Project is supported only for Windows 7/8/8.1/10/11 and their Server equivalents.
+echo Se detectó una versión del sistema operativo no compatible [%winbuild%].
+echo El proyecto solo es compatible con Windows 7/8/8.1/10/11 y sus equivalentes de servidor.
 goto dk_done
 )
 
 ::========================================================================================================================================
 
-::  Fix special character limitations in path name
+::  Corregir limitaciones de caracteres especiales en el nombre de la ruta
 
 set "_work=%~dp0"
 if "%_work:~-1%"=="\" set "_work=%_work:~0,-1%"
@@ -156,17 +156,17 @@ setlocal EnableDelayedExpansion
 echo "!_batf!" | find /i "!_ttemp!" %nul1% && (
 if /i not "!_work!"=="!_ttemp!" (
 %eline%
-echo The script was launched from the temp folder.
-echo You are most likely running the script directly from the archive file.
+echo El script se inició desde la carpeta temporal.
+echo Lo más probable es que estés ejecutando el script directamente desde el archivo comprimido.
 echo:
-echo Extract the archive file and launch the script from the extracted folder.
+echo Extraiga el archivo comprimido y ejecute el script desde la carpeta extraída.
 goto dk_done
 )
 )
 
 ::========================================================================================================================================
 
-::  Check PowerShell
+::  Comprobar PowerShell
 
 REM :PowerShellTest: $ExecutionContext.SessionState.LanguageMode :PowerShellTest:
 
@@ -175,14 +175,14 @@ cmd /c "%psc% "$f=[io.file]::ReadAllText('!_batp!') -split ':PowerShellTest:\s*'
 cmd /c "%psc% "$ExecutionContext.SessionState.LanguageMode""
 echo:
 cmd /c "%psc% "$ExecutionContext.SessionState.LanguageMode"" | find /i "FullLanguage" %nul1% && (
-echo Failed to run Powershell command but Powershell is working.
+echo No se pudo ejecutar el comando de Powershell, pero Powershell está funcionando.
 call :dk_color %Blue% "Check if your antivirus is blocking the script."
 echo:
 set fixes=%fixes% %mas%troubleshoot
 call :dk_color2 %Blue% "Help - " %_Yellow% " %mas%troubleshoot"
 ) || (
-echo PowerShell is not working. Aborting...
-echo If you have applied restrictions on Powershell then undo those changes.
+echo PowerShell no funciona. Interrumpiendo...
+echo Si ha aplicado restricciones en PowerShell, deshaga esos cambios.
 echo:
 set fixes=%fixes% %mas%fix_powershell
 call :dk_color2 %Blue% "Help - " %_Yellow% " %mas%fix_powershell"
@@ -192,19 +192,19 @@ goto dk_done
 
 ::========================================================================================================================================
 
-::  Elevate script as admin and pass arguments and preventing loop
+::  Elevar el script a administrador y pasar argumentos, evitando bucles
 
 %nul1% fltmc || (
 if not defined _elev %psc% "start cmd.exe -arg '/c \"!_PSarg!\"' -verb runas" && exit /b
 %eline%
-echo This script needs admin rights.
-echo Right click on this script and select 'Run as administrator'.
+echo Este script necesita derechos de administrador.
+echo Haga clic derecho en este script y seleccione “Ejecutar como administrador”.
 goto dk_done
 )
 
 ::========================================================================================================================================
 
-::  Disable QuickEdit and launch from conhost.exe to avoid Terminal app
+::  Deshabilite QuickEdit y ejecute desde conhost.exe para evitar la aplicación Terminal
 
 if %winbuild% GEQ 17763 (
 set terminal=1
@@ -212,7 +212,7 @@ set terminal=1
 set terminal=
 )
 
-::  Check if script is running in Terminal app
+::  Comprueba si el script se está ejecutando en la aplicación Terminal
 
 set r1=$TB = [AppDomain]::CurrentDomain.DefineDynamicAssembly(4, 1).DefineDynamicModule(2, $False).DefineType(0);
 set r2=%r1% [void]$TB.DefinePInvokeMethod('GetConsoleWindow', 'kernel32.dll', 22, 1, [IntPtr], @(), 1, 3).SetImplementationFlags(128);
@@ -233,7 +233,7 @@ set "launchcmd=start conhost.exe %psc%"
 set "launchcmd=%psc%"
 )
 
-::  Disable QuickEdit in current session
+::  Deshabilitar QuickEdit en la sesión actual
 
 set "d1=$t=[AppDomain]::CurrentDomain.DefineDynamicAssembly(4, 1).DefineDynamicModule(2, $False).DefineType(0);"
 set "d2=$t.DefinePInvokeMethod('GetStdHandle', 'kernel32.dll', 22, 1, [IntPtr], @([Int32]), 1, 3).SetImplementationFlags(128);"
@@ -245,7 +245,7 @@ set "d4=$k=$t.CreateType(); $b=$k::SetConsoleMode($k::GetStdHandle(-10), 0x0080)
 
 ::========================================================================================================================================
 
-::  Check for updates
+::  Buscar actualizaciones
 
 set -=
 set old=
@@ -257,14 +257,14 @@ if not "%%#"=="" (echo "%%#" | find "127.69" %nul1% && (echo "%%#" | find "127.6
 if defined old (
 echo ________________________________________________
 %eline%
-echo Your version of MAS [%masver%] is outdated.
+echo Su versión de MAS [%masver%] no está actualizada.
 echo ________________________________________________
 echo:
 if not %_unattended%==1 (
-echo [1] Get Latest MAS
-echo [0] Continue Anyway
+echo [1] Obtenga la última versión de MAS
+echo [0] Continuar de todos modos
 echo:
-call :dk_color %_Green% "Choose a menu option using your keyboard [1,0] :"
+call :dk_color %_Green% "Elija una opción de menú usando su teclado [1,0] :"
 choice /C:10 /N
 if !errorlevel!==2 rem
 if !errorlevel!==1 (start ht%-%tps://github.com/mass%-%gravel/Microsoft-Acti%-%vation-Scripts & start %mas% & exit /b)
@@ -275,7 +275,7 @@ if !errorlevel!==1 (start ht%-%tps://github.com/mass%-%gravel/Microsoft-Acti%-%v
 
 if not exist "%SystemRoot%\Temp\" mkdir "%SystemRoot%\Temp" %nul%
 
-::  Run script with parameters in unattended mode
+::  Ejecutar script con parámetros en modo desatendido
 
 set _elev=
 if defined _args echo "%_args%" | find /i "/S" %nul% && (set "_silent=%nul%") || (set _silent=)
@@ -291,7 +291,7 @@ exit /b
 
 setlocal DisableDelayedExpansion
 
-::  Check desktop location
+::  Comprobar la ubicación del escritorio
 
 set desktop=
 for /f "skip=2 tokens=2*" %%a in ('reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v Desktop') do call set "desktop=%%b"
@@ -302,7 +302,7 @@ setlocal EnableDelayedExpansion
 
 if not defined desktop (
 %eline%
-echo Unable to detect Desktop location, aborting...
+echo No se puede detectar la ubicación del escritorio, cancelando...
 goto dk_done
 )
 
@@ -312,7 +312,7 @@ goto dk_done
 
 cls
 color 07
-title  Microsoft %blank%Activation %blank%Scripts %masver%
+title  Scripts %blank%de Activacion %blank%de Microsoft %masver%
 if not defined terminal mode 76, 33
 
 echo:
@@ -321,26 +321,26 @@ echo:
 echo:
 echo:       ______________________________________________________________
 echo:
-echo:                 Activation Methods:
+echo:                 Métodos de activación:
 echo:
-echo:             [1] HWID        ^|  Windows           ^|   Permanent
-echo:             [2] Ohook       ^|  Office            ^|   Permanent
-echo:             [3] KMS38       ^|  Windows           ^|   Year 2038
-echo:             [4] Online KMS  ^|  Windows / Office  ^|    180 Days
+echo:             [1] HWID          ^|  Windows           ^|   Permanente
+echo:             [2] Ohook         ^|  Office            ^|   Permanente
+echo:             [3] KMS38         ^|  Windows           ^|   Año 2038
+echo:             [4] KMS en Linea  ^|  Windows / Office  ^|   180 Dias
 echo:             __________________________________________________      
 echo:
-echo:             [5] Check Activation Status
-echo:             [6] Change Windows Edition
-echo:             [7] Change Office Edition
+echo:             [5] Comprobar estado de activación
+echo:             [6] Cambiar la edición de Windows
+echo:             [7] Cambiar la edición de Office
 echo:             __________________________________________________      
 echo:
-echo:             [8] Troubleshoot
+echo:             [8] Solucionar Problemas
 echo:             [9] Extras
-echo:             [H] Help
-echo:             [0] Exit
+echo:             [H] Ayuda
+echo:             [0] Salir
 echo:       ______________________________________________________________
 echo:
-call :dk_color2 %_White% "      " %_Green% "Choose a menu option using your keyboard [1,2,3,4,5,6,7,8,9,H,0] :"
+call :dk_color2 %_White% "      " %_Green% "Elija una opción de menú usando su teclado [1,2,3,4,5,6,7,8,9,H,0] :"
 choice /C:123456789H0 /N
 set _erl=%errorlevel%
 
@@ -371,15 +371,15 @@ echo:
 echo:
 echo:           ______________________________________________________
 echo:           
-echo:                [1] Extract $OEM$ Folder
+echo:                [1] Extraer la carpeta $OEM$
 echo:                  
-echo:                [2] Download Genuine Windows / Office 
+echo:                [2] Descargar Windows/Office original
 echo:                ____________________________________________      
 echo:                                                                          
-echo:                [0] Go to Main Menu
+echo:                [0] Ir al menú principal
 echo:           ______________________________________________________
 echo:
-call :dk_color2 %_White% "             " %_Green% "Choose a menu option using your keyboard [1,2,0] :"
+call :dk_color2 %_White% "             " %_Green% "Elija una opción de menú usando su teclado [1,2,0] :"
 choice /C:120 /N
 set _erl=%errorlevel%
 
@@ -393,15 +393,15 @@ goto :Extras
 :Extract$OEM$
 
 cls
-title  Extract $OEM$ Folder
+title  Extraer la carpeta $OEM$
 if not defined terminal mode 76, 30
 
 if exist "!desktop!\$OEM$\" (
 %eline%
-echo $OEM$ folder already exists on the Desktop.
+echo La carpeta $OEM$ ya existe en el escritorio.
 echo _____________________________________________________
 echo:
-call :dk_color %_Yellow% "Press [0] key to %_exitmsg%..."
+call :dk_color %_Yellow% "Presione [0] para salir..."
 choice /c 0 /n
 goto :Extras
 )
@@ -409,13 +409,13 @@ goto :Extras
 :Extract$OEM$2
 
 cls
-title  Extract $OEM$ Folder
+title  Extraer la carpeta $OEM$
 if not defined terminal mode 78, 30
 echo:
 echo:
 echo:
 echo:
-echo:                     Extract $OEM$ folder on the desktop           
+echo:                     Extract $OEM$ folder on the desktop            
 echo:           ________________________________________________________
 echo:
 echo:              [1] HWID
@@ -430,10 +430,10 @@ echo:              [8] KMS38      ^(Windows^) ^+ Online KMS ^(Office^)
 echo:              [9] Online KMS ^(Windows^) ^+ Ohook      ^(Office^)
 echo:
 call :dk_color2 %_White% "              [R] " %_Green% "ReadMe"
-echo:              [0] Go Back
+echo:              [0] Volver Atras
 echo:           ________________________________________________________
 echo:  
-call :dk_color2 %_White% "             " %_Green% "Choose a menu option using your keyboard:"
+call :dk_color2 %_White% "             " %_Green% "Elija una opción de menú usando su teclado:"
 choice /C:123456789R0 /N
 set _erl=%errorlevel%
 
@@ -475,21 +475,21 @@ if not exist "!_dir!\SetupComplete.cmd" set _error=1
 
 if defined _error (
 %eline%
-echo The script failed to create the $OEM$ folder.
+echo El script no pudo crear la carpeta $OEM$.
 if exist "!desktop!\$OEM$\.*" rmdir /s /q "!desktop!\$OEM$\" %nul%
 ) else (
 echo:
 call :dk_color %Blue% "%_oem%"
-call :dk_color %Green% "$OEM$ folder was successfully created on your Desktop."
+call :dk_color %Green% "La carpeta $OEM$ se creó correctamente en su escritorio."
 )
 echo "%_oem%" | find /i "KMS38" 1>nul && (
 echo:
-echo To KMS38 activate Server Cor/Acor editions ^(No GUI Versions^),
-echo Check this page %mas%oem-folder
+echo Para activar via KMS38, ediciones Server Cor/Acor (sin versiones GUI),
+echo Consulte esta página %mas%oem-folder
 )
 echo ___________________________________________________________________
 echo:
-call :dk_color %_Yellow% "Press [0] key to %_exitmsg%..."
+call :dk_color %_Yellow% "Presione [0] para salir..."
 choice /c 0 /n
 goto Extras
 
